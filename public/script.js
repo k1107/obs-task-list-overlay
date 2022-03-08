@@ -1,12 +1,15 @@
 var step = 1;
+var livestatus = 'LIVE';
 var refresh_delay = 1000;
 
 function load_config() {
   $.get(window.location.href + "config", function(data) {
     // Set the title.
     $(".title-wrapper .left span").text(data.task_list_title);
+	// Set the Live Status.
+	$(".title-wrapper .right span").text(data.livestatus);
     // Set the title width.
-    $(".title-wrapper .left").width(data.task_list_title_width);
+    //$(".title-wrapper .left").width(data.task_list_title_width);
 
     // Set up the item list.
     var $this = $("ul.task-list").empty();
@@ -31,6 +34,15 @@ function update_active_step() {
   });
 }
 
+function update_live_status() {
+	$.get(window.location.href + "status", function(data) {
+		if (data !== livestatus) {
+			livestatus = data;
+			$(".title-wrapper .right span").text(data);
+		}
+	});
+}
+
 $(document).ready(function(e) {
   // Load configuration.
   load_config();
@@ -38,4 +50,6 @@ $(document).ready(function(e) {
   // Set active step immediately, then update in loop.
   update_active_step();
   var interval = setInterval(update_active_step, refresh_delay);
+  update_live_status();
+  var statusinterval = setInterval(update_live_status, refresh_delay);
 });

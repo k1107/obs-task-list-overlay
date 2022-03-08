@@ -3,6 +3,7 @@ var express = require('express');
 var app = express();
 var path = require('path');
 var step = 1;
+var livestatus = 'LIVE';
 var fs = require('fs');
 
 // Load in the config.
@@ -27,6 +28,10 @@ app.get('/config', function(req, res){
     res.send(config);
 });
 
+app.get('/status', function(req, res){
+    res.send(livestatus);
+});
+
 // Allow incrementing or decrementing the step via /up or /down.
 app.get('/up', function(req, res){
     if (step < config.task_list_items.length){
@@ -40,6 +45,19 @@ app.get('/down', function(req, res){
     }
     res.send('New value: ' + step);
 });
+app.get('/brb', function(req, res){
+    if (livestatus == 'LIVE') {
+		livestatus = 'BRB';
+		res.send('New value: ' + livestatus);
+	}
+});
+app.get('/back', function(req, res){
+    if (livestatus == 'BRB') {
+		livestatus = 'LIVE';
+		res.send('New value: ' + livestatus);
+	}
+});
+
 
 // Start listening on configured port.
 app.listen(config.server_port);
